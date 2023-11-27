@@ -1,0 +1,53 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Users</title>
+    {% include 'header.html' %}
+    {% include 'footer.html' %}
+    {% include 'admin_home_nav.html' %}
+</head>
+<body>
+    <div class="col-md-offset-3 col-md-6" style="margin-top:100px">
+        <h3 class="page-header text-primary"><i class="fa fa-users"> View Users</i></h3>
+         {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if message %}
+                            {% for category,message in messages %}
+                                <div class="alert alert-{{category}}" role="alert">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+    <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th style="text-align:center">S.NO</th>
+                    <th style="text-align:center">Name</th>
+                    <th style="text-align:center">Age</th>
+                    <th style="text-align:center">Address</th>
+                    <th style="text-align:center">Contact</th>
+                    <th style="text-align:center">Mail</th>
+                    <th style="text-align:center">Delete</th>
+                </tr>
+            </thead>
+
+        
+        <tbody>
+            {% for data in res %}
+            <tr>
+                <td style="text-align:center">{{loop.index}}</td> <!--  #loop.index means serial number like it increase 1 2 3 like that -->
+                <td>{{data.name}}</td>
+                <td style="text-align:center">{{data.age}}</td>
+                <td>{{data.address}}</td>
+                <td style="text-align:center">{{data.contact}}</td>
+                <td>{{data.mail}}</td>
+                <td style="text-align:center">
+                    <a href="{{ url_for('delete_users', id=data['pid']) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>    
+    </table>
+    </div>    
+    </div>
+</body>
+</html>
