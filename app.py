@@ -162,7 +162,7 @@ def update_user():
       encryption_key = Fernet.generate_key()
       fernet = Fernet(encryption_key)
 
-      cur = mysql.cursor()
+      cur = mysql.cursor(dictionary=True)
 
       if password:  # Check if password is provided
           # Hash the password
@@ -208,7 +208,7 @@ def admin_home():
             # Hash the password
             Customerhashedpassword = bcrypt.generate_password_hash(Customerpassword).decode('utf-8')
             # Insert the new user into the admin table
-            cur = mysql.cursor()
+            cur = mysql.cursor(dictionary=True)
             cur.execute('INSERT INTO customers (customer_name, customer_email, customer_password, encryption_key) VALUES (%s, %s, %s, %s)', [encrypted_customername, Customeremail, Customerhashedpassword, encryption_key])
             mysql.commit()
             cur.close()
@@ -226,7 +226,7 @@ def admin_home():
 # Admin view existing customers from customers table
 @app.route("/view_users")
 def view_users():
-    cur = mysql.cursor()  # Initialize a database cursor
+    cur = mysql.cursor(dictionary=True)  # Initialize a database cursor
     qry = "SELECT * FROM customers"
     cur.execute(qry)
     data = cur.fetchall()  # Fetch all data from the query result
@@ -268,9 +268,9 @@ def decrypt_customer_field(encrypted_field, encryption_key):
 # admin delete customers data 
 @app.route("/delete_users/<string:Customerid>", methods=['GET', 'POST'])
 def delete_users(Customerid):
-    cur = mysql.connection.cursor()
+    cur = mysql.cursor(dictionary=True)
     cur.execute("delete from customers where customer_id=%s", [Customerid])
-    mysql.connection.commit()
+    mysql.commit()
     flash("Users Deleted Successfully", "danger")
     return redirect(url_for("view_users"))
 
@@ -289,7 +289,7 @@ def update_user_data(Customerid):
         update_password = request.form["update_password"]
 
         try:
-            cur = mysql.connection.cursor()
+            cur = mysql.cursor(dictionary=True)
 
             # Generate a new encryption key
             new_encryption_key = Fernet.generate_key()
@@ -318,7 +318,7 @@ def update_user_data(Customerid):
                 cur.execute('UPDATE customers SET customer_name=%s, customer_age=%s, customer_address=%s, customer_email=%s, encryption_key=%s WHERE customer_id=%s',
                             [encrypted_name, encrypted_age, encrypted_address, update_email, new_encryption_key, Customerid])
 
-            mysql.connection.commit()
+            mysql.commit()
             cur.close()
 
             print('User updated successfully')
@@ -351,12 +351,12 @@ def add_asset():
         encrypted_asset_description = fernet.encrypt(asset_description.encode()).decode('utf-8')
         encrypted_purchase_date = fernet.encrypt(purchase_date.encode()).decode('utf-8')
         encrypted_location = fernet.encrypt(location.encode()).decode('utf-8')
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
 
         # Insert the encrypted asset details into the it_assets table
         cur.execute('INSERT INTO it_assets (asset_name, asset_description, purchase_date, location, encryption_key) VALUES (%s, %s, %s, %s, %s)',
                     [encrypted_asset_name, encrypted_asset_description, encrypted_purchase_date, encrypted_location, encryption_key])
-        mysql.connection.commit()
+        mysql.commit()
         cur.close()
 
         flash('IT Asset added successfully', 'success')
@@ -368,7 +368,7 @@ def add_asset():
 @app.route("/view_assets")
 def view_assets():
     # Fetch existing IT assets from the database
-    cur = mysql.connection.cursor()
+    cur = mysql.cursor(dictionary=True)
     cur.execute("SELECT * FROM it_assets")
     existing_assets = cur.fetchall()
     cur.close()
@@ -407,9 +407,9 @@ def view_assets():
 @app.route("/delete_asset/<int:asset_id>")
 def delete_asset(asset_id):
     try:
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute("DELETE FROM it_assets WHERE asset_id = %s", [asset_id])
-        mysql.connection.commit()
+        mysql.commit()
         cur.close()
         flash('IT Asset deleted successfully', 'success')
     except Exception as e:
@@ -429,7 +429,7 @@ def edit_asset(asset_id):
         update_location = request.form["update_location"]
 
         try:
-            cur = mysql.connection.cursor()
+            cur = mysql.cursor(dictionary=True)
             # Generate a new encryption key
             new_encryption_key = Fernet.generate_key()
             fernet = Fernet(new_encryption_key) #Create a Fernet object with the generated encryption key
@@ -444,7 +444,7 @@ def edit_asset(asset_id):
             cur.execute('UPDATE it_assets SET asset_name=%s, asset_description=%s, purchase_date=%s, location=%s, encryption_key=%s WHERE asset_id=%s',
                         [encrypted_asset_name, encrypted_asset_description, encrypted_purchase_date, encrypted_location, new_encryption_key, asset_id])
 
-            mysql.connection.commit()
+            mysql.commit()
             cur.close()
 
             flash('IT Asset updated successfully', 'success')
@@ -455,7 +455,7 @@ def edit_asset(asset_id):
         return redirect(url_for('view_assets'))
 
     # Fetch the details of the selected IT asset based on edit_assets.html
-    cur = mysql.connection.cursor()
+    cur = mysql.cursor(dictionary=True)
     cur.execute("SELECT * FROM it_assets WHERE asset_id=%s", [asset_id])
     asset_details = cur.fetchone()
     cur.close()
@@ -505,10 +505,10 @@ def help_desk():
 
 
         try:
-            cur = mysql.connection.cursor()
+            cur = mysql.cursor(dictionary=True)
             cur.execute('INSERT INTO help_desk_tickets (user_id, issue_description, status, priority, timestamp, encryption_key) VALUES (%s, %s, %s, %s, %s, %s)',
                         [user_id, encrypt_issue_description, encrypted_status, encrypted_priority, encrypted_timestamp, new_encryption_key])
-            mysql.connection.commit()
+            mysql.commit()
             cur.close()
 
             flash('Help desk ticket submitted successfully', 'success')
@@ -525,7 +525,7 @@ def help_desk():
 def view_help_desk_tickets():
     try:
         # Fetch all help desk tickets from the database
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute("SELECT * FROM help_desk_tickets")
         help_desk_tickets_data = cur.fetchall()
         cur.close() # Close the cursor as we have fetched the data
@@ -573,7 +573,7 @@ def view_help_desk_tickets():
 def update_ticket(ticket_id):
     # Fetch the ticket details based on the ticket ID
     try:
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute("SELECT * FROM help_desk_tickets WHERE ticket_id=%s", [ticket_id])
         ticket_details = cur.fetchone()
 
@@ -625,10 +625,10 @@ def process_update_ticket(ticket_id):
         encrypted_timestamp = fernet.encrypt(str_timestamp.encode()).decode('utf-8')
 
         try:
-            cur = mysql.connection.cursor()
+            cur = mysql.cursor(dictionary=True)
             cur.execute('UPDATE help_desk_tickets SET status=%s, user_id=%s, issue_description=%s, priority=%s, timestamp=%s, encryption_key=%s WHERE ticket_id=%s',
                         [encrypted_new_status, new_user_id, encrypted_issue_description, encrypted_new_priority, encrypted_timestamp, new_encryption_key, ticket_id])
-            mysql.connection.commit()
+            mysql.commit()
             cur.close()
 
             flash('Help desk ticket updated successfully', 'success')
@@ -646,7 +646,7 @@ def view_user_tickets():
         # Get the user ID from the session
         user_id = session["Customerid"]
         # Fetch user's help desk tickets from the database
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute('SELECT * FROM help_desk_tickets WHERE user_id=%s', [user_id])
         user_tickets = cur.fetchall()
 
@@ -691,7 +691,7 @@ def assign_assets():
             asset_ids = request.form.getlist("asset_id[]")
 
             # Fetch customer details and encryption_key based on customer_id
-            cur = mysql.connection.cursor()
+            cur = mysql.cursor(dictionary=True)
             cur.execute("SELECT customer_name, customer_address, customer_email, encryption_key FROM customers WHERE customer_id=%s", [customer_id])
             customer_details = cur.fetchone()
 
@@ -744,7 +744,7 @@ def assign_assets():
                             cur.execute('INSERT INTO assigned_assets_customers (customer_id, asset_id, assignment_date, customer_name, customer_email, customer_address, asset_name, asset_description, encryption_key) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                                         [customer_id, asset_id, datetime.now(), encrypted_customer_name, encrypted_customer_email, encrypted_customer_address, encrypted_asset_name, encrypted_asset_description, new_encryption_key_asset])
 
-                    mysql.connection.commit()
+                    mysql.commit()
                     cur.close()
 
                     flash('Assets assigned successfully', 'success')
@@ -760,7 +760,7 @@ def assign_assets():
 
 
     # Fetch existing customer_ids and asset_ids on assign_assets.html page
-    cur = mysql.connection.cursor()
+    cur = mysql.cursor(dictionary=True)
     # Fetch customer data with encrypted customer names
     cur.execute("SELECT customer_id, customer_name, encryption_key FROM customers")
     customer_data = cur.fetchall()
@@ -794,7 +794,7 @@ def assign_assets():
 def view_assigned_assets():
     try:
         # Fetch data from the assigned_assets_customers table
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute("SELECT * FROM assigned_assets_customers")
         assigned_assets_data = cur.fetchall()
 
@@ -888,10 +888,10 @@ def edit_assigned_asset(assignment_id):
                     encrypted_customer_address = ''  # Set to empty string for blank values
 
                 # Update the assigned_assets_customers table with the new values and new encryption key
-                cur = mysql.connection.cursor()
+                cur = mysql.cursor(dictionary=True)
                 cur.execute('UPDATE assigned_assets_customers SET customer_id=%s, asset_id=%s, asset_name=%s, asset_description=%s, customer_name=%s, customer_email=%s, customer_address=%s, assignment_date=%s, encryption_key=%s WHERE assignment_id=%s',
                             [customer_id, asset_id, encrypted_asset_name, encrypted_asset_description, encrypted_customer_name, encrypted_customer_email, encrypted_customer_address, datetime.now(), new_encryption_key, assignment_id])
-                mysql.connection.commit()
+                mysql.commit()
                 cur.close()
 
                 flash('Asset updated successfully', 'success')
@@ -903,7 +903,7 @@ def edit_assigned_asset(assignment_id):
 
     try:
         # Fetch existing data for the specified assignment_id
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute("SELECT * FROM assigned_assets_customers WHERE assignment_id=%s", [assignment_id])
         assigned_asset_data = cur.fetchone()
 
@@ -946,9 +946,9 @@ def edit_assigned_asset(assignment_id):
 def delete_assigned_asset(assignment_id):
     try:
         # Delete the assigned asset from the assigned_assets_customers table
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute('DELETE FROM assigned_assets_customers WHERE assignment_id=%s', [assignment_id])
-        mysql.connection.commit()
+        mysql.commit()
         cur.close()
 
         flash('Asset deleted successfully', 'success')
@@ -964,7 +964,7 @@ def view_assigned_assets_customer():
     try:
         # Fetch data from the assigned_assets_customers table based on the customer_id
         customer_id = session.get("Customerid")
-        cur = mysql.connection.cursor()
+        cur = mysql.cursor(dictionary=True)
         cur.execute("SELECT * FROM assigned_assets_customers WHERE customer_id=%s", [customer_id])
         assigned_assets_data_customer = cur.fetchall()
 
