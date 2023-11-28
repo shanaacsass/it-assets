@@ -8,9 +8,9 @@ app = Flask(__name__)
 # Set a simple secret key for session security (for development only)
 app.secret_key = '123'
 # Database configuration
-app.config["MYSQL_HOST"] = "ap-south.connect.psdb.cloud"
-app.config["MYSQL_USER"] = "v40a9v5iob1tyobpgm9o"
-app.config["MYSQL_PASSWORD"] = "pscale_pw_wbuubfBvpbhSrk38ogNvaXpWQNnxPvirxmDGeiIm7Yo"
+app.config["MYSQL_HOST"] = "aws.connect.psdb.cloud"
+app.config["MYSQL_USER"] = "v5wl0jjwzazruukmkuky"
+app.config["MYSQL_PASSWORD"] = "pscale_pw_DBJsQLq09uA4Gk0gkn8qd50wuIac6IGvQUro9zVdWO3"
 app.config["MYSQL_DB"] = "joviancareers"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
