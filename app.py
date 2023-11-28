@@ -1,22 +1,39 @@
-from flask import Flask,render_template,request,url_for,session,redirect,flash
-from flask_mysqldb import MySQL
+from flask import Flask, render_template, request, url_for, session, redirect, flash
+import mysql.connector
 from flask_bcrypt import Bcrypt
 from cryptography.fernet import Fernet
-# Add this import at the top of your app.py file
 from datetime import datetime
 
-app=Flask(__name__)
+app = Flask(__name__)
+# Set a simple secret key for session security (for development only)
+app.secret_key = '123'
+# Database configuration
+app.config["MYSQL_HOST"] = "ap-south.connect.psdb.cloud"
+app.config["MYSQL_USER"] = "v40a9v5iob1tyobpgm9o"
+app.config["MYSQL_PASSWORD"] = "pscale_pw_wbuubfBvpbhSrk38ogNvaXpWQNnxPvirxmDGeiIm7Yo"
+app.config["MYSQL_DB"] = "joviancareers"
+app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
-app.config["MYSQL_HOST"]="localhost"
-app.config["MYSQL_USER"]="root"
-app.config["MYSQL_PASSWORD"]=""
-app.config["MYSQL_DB"]="register"
-app.config["MYSQL_CURSORCLASS"]="DictCursor"
-mysql=MySQL(app)
+# Specify the path to your CA certificate for SSL
+ssl_ca_path = "/etc/ssl/cert.pem"
+
+# Database configuration with SSL
+db_config = {
+    "host": app.config["MYSQL_HOST"],
+    "user": app.config["MYSQL_USER"],
+    "password": app.config["MYSQL_PASSWORD"],
+    "database": app.config["MYSQL_DB"],
+    "ssl_ca": ssl_ca_path,
+}
+
+mysql = mysql.connector.connect(**db_config)
+
 bcrypt = Bcrypt(app)
+
 # cipher text package
 key = Fernet.generate_key()
 cipher_suite = Fernet(key)
+
 def decrypt_data(encrypted_data):
     try:
         decrypted_data = cipher_suite.decrypt(encrypted_data.encode()).decode('utf-8')
@@ -24,12 +41,7 @@ def decrypt_data(encrypted_data):
     except Exception as e:
         print(f"Error decrypting data: {e}")
         return None
-# @app.route("/")
-# def index():
-#     cur = mysql.connection.cursor()
-#     cur.execute("select * from admin")
-#     result = cur.fetchall()
-#     return '<h1>'+str(result[0]["aid"])+'</h1>'
+
 @app.route("/", methods=['GET','POST'])
 def index():
     if 'alogin' in request.form:
@@ -38,7 +50,7 @@ def index():
             aemail = request.form["aemail"]
             apass = request.form["apass"]
             try:
-                cur = mysql.connection.cursor()
+                cur = mysql.cursor(dictionary=True)
                 cur.execute("select * from admin where aemail=%s and apass=%s", [aemail, apass])
                 res = cur.fetchone()
                 if res:
@@ -50,8 +62,9 @@ def index():
             except Exception as e:
                 print(e)
             finally:
-                mysql.connection.commit()
                 cur.close()
+                mysql.commit()
+                
     elif 'register' in request.form:
         if request.method == 'POST':
             # Inside your registration logic
@@ -67,9 +80,9 @@ def index():
             encrypted_age = fernet.encrypt(age.encode()).decode('utf-8')
             encrypted_address = fernet.encrypt(address.encode()).decode('utf-8')
             mail = request.form["mail"]
-            cur = mysql.connection.cursor()
+            cur = mysql.cursor(dictionary=True)
             cur.execute('INSERT INTO customers (customer_name, customer_password, customer_age, customer_address, customer_email, encryption_key) VALUES (%s, %s, %s, %s, %s, %s)', [encrypted_uname, hashed_password, encrypted_age, encrypted_address, mail, encryption_key])
-            mysql.connection.commit()
+            mysql.commit()
         return render_template("index.html")
 
     # customers login based on customers email id and password which was created by admin 
@@ -78,7 +91,7 @@ def index():
             Customeremail = request.form["customeremail"]
             Customerpassword = request.form["customerpassword"]
             try:
-                cur = mysql.connection.cursor()
+                cur = mysql.cursor(dictionary=True)
                 cur.execute("SELECT * FROM customers WHERE customer_email=%s", [Customeremail])
                 res = cur.fetchone()
                 if res and bcrypt.check_password_hash(res["customer_password"], Customerpassword):
@@ -97,16 +110,19 @@ def index():
                 print(e)
             finally:
                 cur.close()
-                mysql.connection.commit()
+                mysql.commit()
 
     return render_template("index.html")
+
+
 
 # customers fetching on customers login in user_profile.html
 @app.route("/user_profile")
 def user_profile():
     id = session["Customerid"]  # Get the Customer ID from the session   
     qry = "SELECT * FROM customers WHERE customer_id=%s"  # Query to fetch user data based on the Customer ID  
-    cur = mysql.connection.cursor() # Execute the query with the Customer ID parameter this line and 2nd line
+  # So, when working with mysql.connector in replit, including dictionary=True in the cursor creation is a good practice to ensure that you can access the data using column names in a dictionary format
+    cur = mysql.cursor(dictionary=True) # Execute the query with the Customer ID parameter this line and 2nd line
     cur.execute(qry, [id])
     user_data = cur.fetchone() # Fetch the user data as a dictionary  
     cur.close()   # Close the database cursor
@@ -131,47 +147,48 @@ def user_profile():
 
 
 # customers login and update
+  # customers login and update
 @app.route("/update_user", methods=['GET', 'POST'])
 def update_user():
-    if request.method == 'POST':
-        name = request.form['name']
-        password = request.form['password']
-        age = request.form['age']
-        address = request.form['address']
-        mail = request.form['mail']
-        Customerid = session["Customerid"]
+  if request.method == 'POST':
+      name = request.form['name']
+      password = request.form['password']
+      age = request.form['age']
+      address = request.form['address']
+      mail = request.form['mail']
+      Customerid = session["Customerid"]
 
-        # Generate a new encryption key
-        encryption_key = Fernet.generate_key()
-        fernet = Fernet(encryption_key)
+      # Generate a new encryption key
+      encryption_key = Fernet.generate_key()
+      fernet = Fernet(encryption_key)
 
-        cur = mysql.connection.cursor()
+      cur = mysql.cursor()
 
-        if password:  # Check if password is provided
-            # Hash the password
-            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+      if password:  # Check if password is provided
+          # Hash the password
+          hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-            # Encrypt age and address
-            encrypted_name = fernet.encrypt(name.encode()).decode('utf-8')
-            encrypted_age = fernet.encrypt(age.encode()).decode('utf-8')
-            encrypted_address = fernet.encrypt(address.encode()).decode('utf-8')
+          # Encrypt age and address
+          encrypted_name = fernet.encrypt(name.encode()).decode('utf-8')
+          encrypted_age = fernet.encrypt(age.encode()).decode('utf-8')
+          encrypted_address = fernet.encrypt(address.encode()).decode('utf-8')
 
-            cur.execute("UPDATE customers SET customer_name=%s, customer_password=%s, customer_age=%s, customer_address=%s, customer_email=%s, encryption_key=%s WHERE customer_id=%s",
-                        [encrypted_name, hashed_password, encrypted_age, encrypted_address, mail, encryption_key, Customerid])
-        else:
-            # Encrypt age and address
-            encrypted_name = fernet.encrypt(name.encode()).decode('utf-8')
-            encrypted_age = fernet.encrypt(age.encode()).decode('utf-8')
-            encrypted_address = fernet.encrypt(address.encode()).decode('utf-8')
+          cur.execute("UPDATE customers SET customer_name=%s, customer_password=%s, customer_age=%s, customer_address=%s, customer_email=%s, encryption_key=%s WHERE customer_id=%s",
+                      [encrypted_name, hashed_password, encrypted_age, encrypted_address, mail, encryption_key, Customerid])
+      else:
+          # Encrypt age and address
+          encrypted_name = fernet.encrypt(name.encode()).decode('utf-8')
+          encrypted_age = fernet.encrypt(age.encode()).decode('utf-8')
+          encrypted_address = fernet.encrypt(address.encode()).decode('utf-8')
 
-            cur.execute("UPDATE customers SET customer_name=%s, customer_age=%s, customer_address=%s, customer_email=%s, encryption_key=%s WHERE customer_id=%s",
-                        [encrypted_name, encrypted_age, encrypted_address, mail, encryption_key, Customerid])
+          cur.execute("UPDATE customers SET customer_name=%s, customer_age=%s, customer_address=%s, customer_email=%s, encryption_key=%s WHERE customer_id=%s",
+                      [encrypted_name, encrypted_age, encrypted_address, mail, encryption_key, Customerid])
 
-        mysql.connection.commit()
-        flash('User Updated Successfully', 'success')
-        return redirect(url_for('user_profile'))
+      mysql.commit()
+      flash('User Updated Successfully', 'success')
+      return redirect(url_for('user_profile'))
 
-    return render_template("user_profile.html")
+  return render_template("user_profile.html")
 
 # admin register for customers email and password and username.. (admin can create customers email, name and password)
 @app.route("/admin_home", methods=['GET', 'POST'])
@@ -191,9 +208,9 @@ def admin_home():
             # Hash the password
             Customerhashedpassword = bcrypt.generate_password_hash(Customerpassword).decode('utf-8')
             # Insert the new user into the admin table
-            cur = mysql.connection.cursor()
+            cur = mysql.cursor()
             cur.execute('INSERT INTO customers (customer_name, customer_email, customer_password, encryption_key) VALUES (%s, %s, %s, %s)', [encrypted_customername, Customeremail, Customerhashedpassword, encryption_key])
-            mysql.connection.commit()
+            mysql.commit()
             cur.close()
 
             flash('User registered successfully', 'success')
@@ -209,7 +226,7 @@ def admin_home():
 # Admin view existing customers from customers table
 @app.route("/view_users")
 def view_users():
-    cur = mysql.connection.cursor()  # Initialize a database cursor
+    cur = mysql.cursor()  # Initialize a database cursor
     qry = "SELECT * FROM customers"
     cur.execute(qry)
     data = cur.fetchall()  # Fetch all data from the query result
@@ -993,7 +1010,5 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
-if(__name__=='__main__'):
-    app.secret_key= '123'
-    app.run(debug=True)
-
+if __name__ == "__main__":
+  app.run(host='0.0.0.0', debug=True)
