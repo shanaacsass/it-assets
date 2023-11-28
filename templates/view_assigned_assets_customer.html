@@ -1,0 +1,44 @@
+<!-- view_assigned_assets_customer.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Assigned Assets</title>
+    {% include 'header.html' %}
+    {% include 'footer.html' %}
+    {% include 'user_home_nav.html' %}
+</head>
+<body>
+    <div class="container" style="margin-top: 20px;">
+        <h3>View Assigned Assets</h3>
+
+        {% if assigned_assets_data_customer %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Assignment ID</th>
+                        <th>Asset ID</th>
+                        <th>Asset Name</th>
+                        <th>Asset Description</th>
+                        <th>Assignment Date</th>
+                        <!-- Add additional columns as needed -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assigned_asset_customer in assigned_assets_data_customer %}
+                        <tr>
+                            <td>{{ assigned_asset_customer.assignment_id }}</td>
+                            <td>{{ assigned_asset_customer.asset_id }}</td>
+                            <td>{{ assigned_asset_customer.asset_name }}</td>
+                            <td>{{ assigned_asset_customer.asset_description }}</td>
+                            <td>{{ assigned_asset_customer.assignment_date }}</td>
+                            <!-- Add additional columns as needed -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No assigned assets data available for the customer.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

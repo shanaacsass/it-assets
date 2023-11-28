@@ -5,7 +5,19 @@
         </div>
         <ul class="nav navbar-nav navbar-right">
             <li><a href="{{url_for('admin_home')}}"><i class="fa fa-user"> Welcome : {{session["aname"]}}</i></a></li>
-            <li><a href="{{url_for('view_users')}}"><i class="fa fa-users"> View Users</i></a></li>
+            <li><a href="{{url_for('view_users')}}"><i class="fa fa-users"> View Customers</i></a></li>
+            <ul class="nav navbar-nav navbar-right">
+    
+            
+                <!-- Add this list item for IT Assets -->
+                <li><a href="#" data-toggle="modal" data-target="#addAssetModal"><i class="fa fa-desktop"> IT Assets</i></a></li>
+            
+        
+            </ul>
+            <!-- Add this list item to the existing unordered list -->
+            <li><a href="#" data-toggle="modal" data-target="#register"><i class="fa fa-edit"> Register User</i></a></li>
+            
+
             <li><a href="{{url_for('logout')}}"><i class="fa fa-sign-out-alt"> Logout</i></a></li>
         </ul>
     </div>

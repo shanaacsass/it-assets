@@ -1,0 +1,79 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assign Assets</title>
+    {% include 'header.html' %}
+    {% include 'footer.html' %}
+    {% include 'admin_home_nav.html' %}
+</head>
+<body>
+    <div class="container" style="margin-top: 20px;">
+        <!--  View Assigned Assets button -->
+        <h3><a href="{{ url_for('view_assigned_assets') }}" class="btn btn-info float-right">View Assigned Assets</a></h3>
+        <h3>Assign Assets</h3>
+        <form method="POST" action="{{ url_for('assign_assets') }}">
+            <div class="form-group">
+                <label for="customer_id">Customer ID</label>
+                <select class="form-control" id="customer_id" name="customer_id" required>
+                    {% for customer in customer_data %}
+                        <option value="{{ customer.customer_id }}">{{ customer.customer_name }} ({{ customer.customer_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="asset_id">Select IT Assets (Hold Ctrl/Cmd to select multiple)</label>
+                <select multiple class="form-control" id="asset_id" name="asset_id[]" required>
+                    {% for asset in asset_data %}
+                        <option value="{{ asset.asset_id }}">{{ asset.asset_name }} ({{ asset.asset_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Selected IT Assets:</label>
+                <ul id="selected-assets-list">
+                    <!-- Display selected assets here -->
+                </ul>
+            </div>
+            <button type="submit" class="btn btn-primary" name="assign">Assign Assets</button>
+        </form>
+    </div>
+
+    <!-- JavaScript to dynamically update the selected assets list -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var assetSelect = document.getElementById('asset_id');
+        var selectedAssetsList = document.getElementById('selected-assets-list');
+
+        assetSelect.addEventListener('change', function() {
+            updateSelectedAssetsList();
+        });
+
+        function updateSelectedAssetsList() {
+            // Clear the existing list
+            selectedAssetsList.innerHTML = '';
+
+            // Add selected assets to the list
+            Array.from(assetSelect.selectedOptions).forEach(function(option) {
+                var listItem = document.createElement('li');
+                listItem.textContent = option.textContent;
+
+                // Add a button to remove the asset
+                var removeButton = document.createElement('button');
+                removeButton.textContent = 'x';
+                removeButton.classList.add('remove-asset');
+                removeButton.addEventListener('click', function() {
+                    option.selected = false;
+                    updateSelectedAssetsList();
+                });
+
+                listItem.appendChild(removeButton);
+                selectedAssetsList.appendChild(listItem);
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

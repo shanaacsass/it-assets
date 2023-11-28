@@ -1,0 +1,53 @@
+<!-- update_ticket.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Help Desk Tickets</title>
+    {% include 'header.html' %}
+    {% include 'footer.html' %}
+    {% include 'admin_home_nav.html' %}
+</head>
+<body>
+    <div class="container" style="margin-top: 20px;">
+        <h2>Update Help Desk Ticket</h2>
+        <form method="POST" action="{{ url_for('process_update_ticket', ticket_id=ticket_details['ticket_id']) }}">
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ticket Id </label>
+                <input type="text" class="form-control" placeholder="Ticket Id" name="ticket_id" value="{{ ticket_details['ticket_id'] }}" autocomplete="off" readonly>
+            </div>
+            <div class="form-group">
+                <label>User Id </label>
+                <input type="text" class="form-control" placeholder="User Id" name="user_id" value="{{ ticket_details['user_id'] }}" autocomplete="off" readonly>
+            </div>
+            <div class="form-group">
+                <label>issue description</label>
+                <input type="text" class="form-control" placeholder="Issue description" name="issue_description" value="{{ ticket_details['issue_description'] }}" autocomplete="off" readonly>
+            </div>
+            <!-- <div class="form-group">
+                <label>status</label>
+                <input type="text" class="form-control" placeholder="status" name="status" value="{{ ticket_details['status'] }}" autocomplete="off">
+            </div> -->
+            <div class="form-group">
+                <label>Priority</label>
+                <input type="text" class="form-control" placeholder="priority" name="priority" value="{{ ticket_details['priority'] }}" autocomplete="off" readonly>
+            </div>
+           
+            <div class="form-group">
+                <label>Time stamp</label>
+                <input type="text" class="form-control" placeholder="Current Time stamp" name="timestamp" value="{{ ticket_details['timestamp'] }}" autocomplete="off" readonly>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+</body>
+</html>

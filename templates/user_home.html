@@ -7,8 +7,13 @@
     {% include 'user_home_nav.html'%}
 </head>
 <body>
+    
         <div class="col-md-offset-3 col-md-5" style="margin-top:380px">
-            <center><h1>User Home</h1></center>
+            <center><h1>User Home</h1>
+                 <!-- Change the hyperlink to a button -->
+            <a href="{{ url_for('view_assigned_assets_customer') }}" class="btn btn-primary">View Assigned Assets</a>
+            </center>
         </div>
+
 </body>
 </html>

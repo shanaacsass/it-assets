@@ -7,8 +7,99 @@
     {% include 'admin_home_nav.html' %}
 </head>
 <body>
-    <div class="col-md-offset-3 col-md-5" style="margin-top:380px">
-    <center><h1>Admin Home</h1></center>
+    <div class="col-md-offset-3 col-md-5" style="margin-top: 200px; text-align: center;">
+
+        <!-- Link to view existing IT assets -->
+        <a href="{{ url_for('view_assets') }}" class="btn btn-info">View IT Assets</a>
+        
+        <!-- Add this link to navigate to help desk tickets management page -->
+        <a href="{{ url_for('view_help_desk_tickets') }}" class="btn btn-info">View Help Desk Tickets</a>
+
+        <!-- Add this link to navigate to the assign_assets page -->
+        <a href="{{ url_for('assign_assets') }}" class="btn btn-info">Assign Assets</a>
+
+        <h1>Welcome, {{ aname }}!</h1>
     </div>
+
+
+    <div class="modal fade" id="register" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="text-primary text-center modal-title"><span class="fa fa-edit"> Registration</span></h4>
+                </div>
+                <div class="modal-body" style="margin-bottom:30px;">
+                    <form method="POST" action="{{ url_for('admin_home') }}">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" class="form-control" placeholder="Name" name="customername" autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mail</label>
+                            <input type="text" class="form-control" placeholder="Mail" name="customeremail" autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" placeholder="Password" name="customerpassword" autocomplete="off">
+                        </div>
+                    
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-primary pull-right" name="register" value="Register">
+                            <input type="reset" class="btn btn-danger pull-right" style="margin-right:10px" value="clear">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    It Asset Modal code 
+    <div class="modal fade" id="addAssetModal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="text-primary text-center modal-title"><span class="fa fa-desktop"> Add IT Asset</span></h4>
+                </div>
+                <div class="modal-body" style="margin-bottom:30px;">
+                    <!-- Form for adding IT assets -->
+                    <form method="POST" action="{{ url_for('add_asset') }}">
+                        <div class="form-group">
+                            <label>Asset Name</label>
+                            <input type="text" class="form-control" placeholder="Asset Name" name="asset_name" autocomplete="off">
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Asset Description</label>
+                            <input type="text" class="form-control" placeholder="Asset Description" name="asset_description" autocomplete="off">
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Purchase Date</label>
+                            <input type="date" class="form-control" name="purchase_date">
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" class="form-control" placeholder="Location" name="location" autocomplete="off">
+                        </div>
+    
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-primary pull-right" name="add_asset" value="Add Asset">
+                            <input type="reset" class="btn btn-danger pull-right" style="margin-right:10px" value="Clear">
+                        </div>
+                    </form>
+
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 </body>
 </html>

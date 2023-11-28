@@ -1,0 +1,38 @@
+<!-- edit_asset.html -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit IT Asset</title>
+    {% include 'header.html' %}
+    {% include 'footer.html' %}
+    {% include 'admin_home_nav.html' %}
+</head>
+<body>
+    <div class="container" style="margin-top: 20px;">
+        <h3>Edit IT Asset</h3>
+        <!-- Form for updating IT assets -->
+        <form method="POST" action="{{ url_for('edit_asset', asset_id=asset_details.asset_id) }}">
+            <div class="form-group">
+                <label>Asset Name</label>
+                <input type="text" class="form-control" name="update_asset_name" value="{{ asset_details.asset_name }}">
+            </div>
+            <div class="form-group">
+                <label>Asset Description</label>
+                <input type="text" class="form-control" name="update_asset_description" value="{{ asset_details.asset_description }}">
+            </div>
+            <div class="form-group">
+                <label>Purchase Date</label>
+                <input type="text" class="form-control" name="update_purchase_date" value="{{ asset_details.purchase_date }}">
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" class="form-control" name="update_location" value="{{ asset_details.location }}">
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="Update Asset">
+            </div>
+        </form>
+    </div>
+</body>
+</html>

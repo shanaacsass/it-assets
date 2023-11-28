@@ -7,7 +7,7 @@
     {% include 'admin_home_nav.html' %}
 </head>
 <body>
-    <div class="col-md-offset-3 col-md-6" style="margin-top:100px">
+    <div class="col-md-offset-2 col-md-6" style="margin-top:100px">
         <h3 class="page-header text-primary"><i class="fa fa-users"> View Users</i></h3>
          {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if message %}
@@ -21,11 +21,13 @@
                 <tr>
                     <th style="text-align:center">S.NO</th>
                     <th style="text-align:center">Name</th>
-                    <th style="text-align:center">Age</th>
-                    <th style="text-align:center">Address</th>
-                    <th style="text-align:center">Contact</th>
                     <th style="text-align:center">Mail</th>
-                    <th style="text-align:center">Delete</th>
+                    <th style="text-align:center">Password</th>
+                    <th style="text-align:center">Address</th>
+                    <th style="text-align:center">Age</th>
+                    <!-- <th style="text-align:center">Contact</th> -->
+                    <th style="text-align:center">Encryption Key </th>
+                    <th style="text-align:center">Action</th>
                 </tr>
             </thead>
 
@@ -34,20 +36,75 @@
             {% for data in res %}
             <tr>
                 <td style="text-align:center">{{loop.index}}</td> <!--  #loop.index means serial number like it increase 1 2 3 like that -->
-                <td>{{data.name}}</td>
-                <td style="text-align:center">{{data.age}}</td>
-                <td>{{data.address}}</td>
-                <td style="text-align:center">{{data.contact}}</td>
-                <td>{{data.mail}}</td>
+                <td>{{ data.decrypted_name }}</td>
+                <td style="text-align:center">{{data.customer_email}}</td>
+                <!-- if we want to see password value written this {{data.customer_password}} inside the <td>{{data.customer_password}}</td> -->
+                <!-- Modify the password cell to display a lock icon with adjusted styling -->
+                <td style="text-align:center; color: #6814f0; vertical-align: middle; padding: 5px;"><i class="fas fa-lock"></i></td> <!-- {{data.customer_password}} --> <!-- write like this <td>{{data.customer_password}}</td> -->
+                
+                <td style="text-align:center">{{data.decrypted_address}}</td>
+                <td>{{data.decrypted_age}}</td>
+                <td style="text-align:center">{{data.encryption_key}}</td>
                 <td style="text-align:center">
-                    <a href="{{ url_for('delete_users', id=data['pid']) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                    <a href="{{ url_for('delete_users', Customerid=data['customer_id']) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal{{ data['customer_id'] }}">
+                        Update
+                    </button>
                 </td>
                 
             </tr>
+                            <!-- Update Modal for each row -->
+                <div class="modal fade" id="updateModal{{ data['customer_id'] }}" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Update User</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('update_user_data', Customerid=data['customer_id']) }}">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="update_name" value="{{ data.decrypted_name }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="text" class="form-control" name="update_email" value="{{ data['customer_email'] }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Password</label>
+                                        <input type="password" class="form-control" name="update_password" placeholder="Update password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Address</label>
+                                        <input type="text" class="form-control" name="update_address" value="{{ data.decrypted_address }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Age</label>
+                                        <input type="text" class="form-control" name="update_age" value="{{ data.decrypted_age }}">
+                                    </div>
+                                    
+                                    <!-- <div class="form-group">
+                                        <label>Contact</label>
+                                        <input type="text" class="form-control" name="update_contact" value="{{ data['customer_contact'] }}">
+                                    </div> -->
+                                    
+                                    
+                                    <div class="form-group">
+                                        <input type="submit" class="btn btn-primary" value="Update">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
         </tbody>    
     </table>
     </div>    
+    
     </div>
+
+    
 </body>
 </html>
