@@ -289,7 +289,7 @@ def update_user_data(Customerid):
         update_password = request.form["update_password"]
 
         try:
-            cur = mysql.cursor(dictionary=True)
+            cur = mysql.connection.cursor()
 
             # Generate a new encryption key
             new_encryption_key = Fernet.generate_key()
